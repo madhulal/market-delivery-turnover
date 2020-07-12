@@ -9,7 +9,7 @@ monthtext={'01':'JAN','02':'FEB','03':'MAR','04':'APR','05':'MAY','06':'JUN','07
 def store_nse_bhavcopy(date, dir):
   day, month, year = '%02d' % date.day, '%02d' % date.month, '%02d' % date.year
   nsebhavcopyfile = dir + '/cm' + day + monthtext[month] + year + 'bhav.csv'
-  print('Getting the file - ' + nsebhavcopyfile)
+  print('Getting the NSE BHAV COPY named ' + nsebhavcopyfile)
   csvfile = open(nsebhavcopyfile, 'r')
   reader = csv.DictReader( csvfile )
   mongo_client=MongoClient() 
@@ -21,6 +21,3 @@ def store_nse_bhavcopy(date, dir):
         row[field]=each[field]
 
     db.segment.insert(row)
-
-
-
