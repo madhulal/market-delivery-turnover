@@ -1,1 +1,1 @@
-mongod --dbpath /workspace/data/market-delivery-turnover
+mongod --dbpath /workspace/data/market

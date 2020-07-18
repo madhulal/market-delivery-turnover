@@ -1,7 +1,7 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from downloadnsebhavcopy import download_nse_bhavcopy
-from downloadbsebhavcopy import download_bse_bhavcopy
+from nsebhavcopyutils import getnsebhavcopy
+from bsebhavcopyutils import getbsebhavcopy
 from settings import LOG_FILE, DATA_FOLDER
 import os
 from datetime import datetime
@@ -22,8 +22,8 @@ for i in range(1, diff.days+1):
     if(istradingholiday(requestdate)):
         print('Holiday')
     else:
-        download_nse_bhavcopy(requestdate, DATA_FOLDER)
-        download_bse_bhavcopy(requestdate, DATA_FOLDER)
+        getnsebhavcopy(requestdate, DATA_FOLDER)
+        #getbsebhavcopy(requestdate, DATA_FOLDER)
         wr = requestdate.date()
 
 # writing the last downloaded date to LOG file

@@ -8,3 +8,4 @@ load_dotenv(dotenv_path)
 
 LOG_FILE = os.environ.get("LOG_FILE")
 DATA_FOLDER = os.environ.get("DATA_FOLDER")
+MONGO_URI = os.environ.get("MONGO_URI")
