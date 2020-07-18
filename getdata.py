@@ -29,5 +29,5 @@ for i in range(1, diff.days+1):
 # writing the last downloaded date to LOG file
 if not isinstance(wr, str):
     logfile = open(LOG_FILE, 'w')
-    logfile.write(str(wr))
+    # logfile.write(str(wr))
     logfile.close()
