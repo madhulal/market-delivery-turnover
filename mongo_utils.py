@@ -62,7 +62,9 @@ cars = [{'_id': 123, 'name': 'Audi', 'price': 52642},
 # list_collections()
 # print_records("car")
 
-# db_status()
-# count_records("nse_bhav_raw")
+db_status()
+count_records("nse_bhav_raw")
+count_records("bse_bhav_raw")
+#drop_collection("nse_bhav_raw")
 
-# drop_collection("nse_bhav_raw")
+#print_records("car")

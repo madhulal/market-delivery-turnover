@@ -12,8 +12,6 @@ def is_weekend(date):
         return False
 
 # TODO Check the trading holidays
-
-
 def is_trading_holiday(date):
     if(is_weekend(date)):
         return True
@@ -22,4 +20,5 @@ def is_trading_holiday(date):
 
 
 def format_date(date_string, input_format):
+    #print('Getting the desired format for {} from {}'.format(date_string, input_format))
     return datetime.strptime(date_string, input_format).strftime(DATE_FORMAT)

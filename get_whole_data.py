@@ -1,6 +1,6 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from nse_bhav_copy_utils import get_nse_bhav_copy
+from nse_bhav_copy_utils import get_nse_bhav_copy, get_nse_delivery_data
 from bse_bhav_copy_utils import get_bse_bhav_copy
 from settings import LOG_FILE, DATA_FOLDER
 import os
@@ -23,7 +23,8 @@ for i in range(1, diff.days+1):
         print("{} is a trading holiday".format(requestdate))
     else:
         #get_nse_bhav_copy(requestdate, DATA_FOLDER)
-        get_bse_bhav_copy(requestdate, DATA_FOLDER)
+        #get_bse_bhav_copy(requestdate, DATA_FOLDER)
+        get_nse_delivery_data(requestdate, DATA_FOLDER)
         wr = requestdate.date()
 
 # writing the last downloaded date to LOG file
