@@ -6,45 +6,45 @@ client = MongoClient(MONGO_URI)
 db = client.marketdb
 
 
-def dbstatus():
+def db_status():
     print(db.collection_names())
     status = db.command("dbstats")
     print(status)
 
 
-def countrecords(collection):
+def count_records(collection):
     n_records = db[collection].find().count()
     print("There are {} records".format(n_records))
 
 
-def insertrecord(collection, record):
+def insert_record(collection, record):
     db[collection].insert(record)
 
 
-def insertrecords(collection, records):
+def insert_records(collection, records):
     db[collection].insert_many(records)
 
 
-def updaterecord(collection, record):
+def update_record(collection, record):
     db[collection].update_one(record, upsert=True)
 
 
-def getrecord(collection, idvalue):
+def get_record(collection, idvalue):
     record = db[collection].find_one({'_id': idvalue})
     return record
 
 
-def printrecords(collection):
+def print_records(collection):
     records = db[collection].find()
     for record in records:
         print(record)
 
 
-def listcollections():
+def list_collections():
     print(db.collection_names())
 
 
-def dropcollection(collection):
+def drop_collection(collection):
     db[collection].drop()
 
 
@@ -57,14 +57,12 @@ cars = [{'_id': 123, 'name': 'Audi', 'price': 52642},
         {'name': 'Hummer', 'price': 41400},
         {'name': 'Volkswagen', 'price': 21600}]
 
-#dropcollection("car")
-# insertrecord("car", cars)
-# listcollections()
-# printrecords("car")
+# drop_collection("car")
+# insert_record("car", cars)
+# list_collections()
+# print_records("car")
 
-dbstatus()
-countrecords("nse_bhav_raw")
+# db_status()
+# count_records("nse_bhav_raw")
 
-#dropcollection("nse_bhav_raw")
-
-
+# drop_collection("nse_bhav_raw")

@@ -1,13 +1,13 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from nsebhavcopyutils import getnsebhavcopy
-from bsebhavcopyutils import getbsebhavcopy
+from nse_bhav_copy_utils import get_nse_bhav_copy
+from bse_bhav_copy_utils import get_bse_bhav_copy
 from settings import LOG_FILE, DATA_FOLDER
 import os
 from datetime import datetime
-from holiday import istradingholiday
+from date_utils import is_trading_holiday
 
-today = datetime.today().date()
+
 logfile = open(LOG_FILE, 'r')
 lastdatestring = logfile.read(10)
 logfile.close()
@@ -15,20 +15,20 @@ logfile.close()
 today = datetime.today().date()
 lastdate = datetime.strptime(lastdatestring, '%Y-%m-%d')
 diff, wr = today-lastdate.date(), ''
-print(diff.days)
+print('Updating data for last {} days'.format(diff.days))
 
 for i in range(1, diff.days+1):
     requestdate = lastdate + relativedelta(days=i)
-    if(istradingholiday(requestdate)):
-        print('Holiday')
+    if(is_trading_holiday(requestdate)):
+        print("{} is a trading holiday".format(requestdate))
     else:
-        #getnsebhavcopy(requestdate, DATA_FOLDER)
-        #getbsebhavcopy(requestdate, DATA_FOLDER)
+        #get_nse_bhav_copy(requestdate, DATA_FOLDER)
+        get_bse_bhav_copy(requestdate, DATA_FOLDER)
         wr = requestdate.date()
 
 # writing the last downloaded date to LOG file
 if not isinstance(wr, str):
     #logfile = open(LOG_FILE, 'w')
     # logfile.write(str(wr))
-    #logfile.close()
+    # logfile.close()
     print("TODO update the last processed date")
