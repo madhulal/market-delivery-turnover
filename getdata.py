@@ -22,12 +22,13 @@ for i in range(1, diff.days+1):
     if(istradingholiday(requestdate)):
         print('Holiday')
     else:
-        getnsebhavcopy(requestdate, DATA_FOLDER)
+        #getnsebhavcopy(requestdate, DATA_FOLDER)
         #getbsebhavcopy(requestdate, DATA_FOLDER)
         wr = requestdate.date()
 
 # writing the last downloaded date to LOG file
 if not isinstance(wr, str):
-    logfile = open(LOG_FILE, 'w')
+    #logfile = open(LOG_FILE, 'w')
     # logfile.write(str(wr))
-    logfile.close()
+    #logfile.close()
+    print("TODO update the last processed date")

@@ -12,9 +12,9 @@ def dbstatus():
     print(status)
 
 
-def countrecors(collection):
+def countrecords(collection):
     n_records = db[collection].find().count()
-    print("There are {} cars".format(n_records))
+    print("There are {} records".format(n_records))
 
 
 def insertrecord(collection, record):
@@ -56,7 +56,15 @@ cars = [{'_id': 123, 'name': 'Audi', 'price': 52642},
         {'name': 'Citroen', 'price': 21000},
         {'name': 'Hummer', 'price': 41400},
         {'name': 'Volkswagen', 'price': 21600}]
-# dropcollection("car")
+
+#dropcollection("car")
 # insertrecord("car", cars)
 # listcollections()
 # printrecords("car")
+
+dbstatus()
+countrecords("nse_bhav_raw")
+
+#dropcollection("nse_bhav_raw")
+
+

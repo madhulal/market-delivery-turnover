@@ -11,7 +11,7 @@ def getnsebhavcopy(date, dir):
     filename = 'cm'+day+monthtext[month]+year+'bhav.csv'
     nsebhavzipurl = 'https://www1.nseindia.com/content/historical/EQUITIES/' + \
         year+'/' + monthtext[month]+'/' + filename+'.zip'
-    downloadzipfile(nsebhavzipurl, dir)
+    #downloadzipfile(nsebhavzipurl, dir)
     storebhavcopy(dir, filename)
 
 
