@@ -21,6 +21,6 @@ def storebhavcopy(dir, filename):
     csv_file = csv.DictReader(file)
     for row in csv_file:
         rowdict = dict(row)
-        rowdict["_id"] = rowdict["SYMBOL"] + "_" + rowdict["TIMESTAMP"]
+        rowdict["_id"] = rowdict["ISIN"] + "_" + rowdict["TIMESTAMP"]
         del rowdict['']
         insertrecord("nse_bhav_raw", rowdict)
