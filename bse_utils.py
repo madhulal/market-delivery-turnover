@@ -21,6 +21,6 @@ def store_bhav_copy(dir, file):
     for row in csv_file:
         rowdict = dict(row)
         rowdict["_id"] = rowdict["ISIN_CODE"] + \
-            "_" + format_date(rowdict["TRADING_DATE"], '%d-%b-%y')
+            "_" + format_date_string(rowdict["TRADING_DATE"], '%d-%b-%y')
         # print(rowdict)
         insert_record("bse_bhav_raw", rowdict)

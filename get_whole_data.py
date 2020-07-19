@@ -1,16 +1,18 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from nse_bhav_copy_utils import get_nse_bhav_copy, get_nse_delivery_data
-from bse_bhav_copy_utils import get_bse_bhav_copy
+from nse_utils import get_nse_bhav_copy, get_nse_delivery_data
+from bse_utils import get_bse_bhav_copy
 from settings import LOG_FILE, DATA_FOLDER
 import os
 from datetime import datetime
 from date_utils import is_trading_holiday
 
 
-logfile = open(LOG_FILE, 'r')
-lastdatestring = logfile.read(10)
-logfile.close()
+# TODO
+# logfile = open(LOG_FILE, 'r')
+#lastdatestring = logfile.read(10)
+# logfile.close()
+lastdatestring = '2020-07-16'
 
 today = datetime.today().date()
 lastdate = datetime.strptime(lastdatestring, '%Y-%m-%d')
@@ -29,6 +31,7 @@ for i in range(1, diff.days+1):
 
 # writing the last downloaded date to LOG file
 if not isinstance(wr, str):
+
     #logfile = open(LOG_FILE, 'w')
     # logfile.write(str(wr))
     # logfile.close()
