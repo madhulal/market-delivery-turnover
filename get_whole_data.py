@@ -2,6 +2,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from nse_utils import get_nse_bhav_copy, get_nse_delivery_data
 from bse_utils import get_bse_bhav_copy, get_bse_delivery_data
+from ichart_utils import fetch_technical_from_ichart
 from settings import LOG_FILE, DATA_FOLDER
 import os
 from datetime import datetime
@@ -27,9 +28,10 @@ for i in range(1, diff.days+1):
         #get_nse_bhav_copy(requestdate, DATA_FOLDER)
         #get_bse_bhav_copy(requestdate, DATA_FOLDER)
         #get_nse_delivery_data(requestdate, DATA_FOLDER)
-        get_bse_delivery_data(requestdate, DATA_FOLDER)
+        #get_bse_delivery_data(requestdate, DATA_FOLDER)
         wr = requestdate.date()
 
+fetch_technical_from_ichart(today, DATA_FOLDER)
 # writing the last downloaded date to LOG file
 if not isinstance(wr, str):
 
