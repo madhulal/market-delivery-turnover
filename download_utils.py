@@ -15,6 +15,7 @@ def download_zip_file(url, dir):
 
 
 def download_zip_file_mozilla_agent(url, dir):
+    print(url + dir)
     ssl._create_default_https_context = ssl._create_unverified_context
     page = urllib.request.Request(
         url, headers={'User-Agent': 'Mozilla/5.0'})

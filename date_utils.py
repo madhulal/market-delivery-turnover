@@ -22,6 +22,12 @@ def is_trading_holiday(date):
 
 
 def format_date_string(date_string, input_format):
+    """ print(date_string + input_format)
+    var1 = datetime.strptime(date_string, input_format)
+    print(var1)
+    var2 = var1.strftime(DATE_FORMAT)
+    print(var2)
+    return var2 """
     return datetime.strptime(date_string, input_format).strftime(DATE_FORMAT)
 
 
