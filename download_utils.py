@@ -5,25 +5,40 @@ import ssl
 import logging
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 def download_file(url, dir, file):
-    logger.info('Downloaing {} to {}'.format(url, dir+file))
+    logger.info('Downloaing {} to {}'.format(url, dir + file))
     ssl._create_default_https_context = ssl._create_unverified_context
-    urllib.request.urlretrieve(url, dir + file)
+    try:
+        urllib.request.urlretrieve(url, dir + file)
+        return True
+    except Exception as e:
+        logger.warn('Failed to download {} with exception {}'.format(url, e))
 
 
 def download_zip_file(url, dir):
-    logger.info('Downloaing zip from {} and extracting to {}'.format(url, dir))
-    with urllib.request.urlopen(url) as zipresp:
-        with ZipFile(BytesIO(zipresp.read())) as zfile:
-            zfile.extractall(dir)
+    logger.info('Downloaing zip from {url} and extracting to {dir}')
+    try:
+        with urllib.request.urlopen(url) as zipresp:
+            with ZipFile(BytesIO(zipresp.read())) as zfile:
+                zfile.extractall(dir)
+        return True
+    except Exception as e:
+        logger.warn('Failed to download {} with exception {}'.format(url, e))
 
 
 def download_zip_file_mozilla_agent(url, dir):
-    logger.info('Downloaing zip using mozilla agent from {} and extracting to {}'.format(url, dir))
+    logger.info(
+        'Downloaing zip using mozilla agent from {url} and extracting to {dir}')
     ssl._create_default_https_context = ssl._create_unverified_context
     page = urllib.request.Request(
         url, headers={'User-Agent': 'Mozilla/5.0'})
-    with urllib.request.urlopen(page) as zipresp:
-        with ZipFile(BytesIO(zipresp.read())) as zfile:
-            zfile.extractall(dir)
+    try:
+        with urllib.request.urlopen(page) as zipresp:
+            with ZipFile(BytesIO(zipresp.read())) as zfile:
+                zfile.extractall(dir)
+        return True
+    except Exception as e:
+        logger.warn('Failed to download {} with exception {}'.format(url, e))
