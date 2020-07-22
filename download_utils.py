@@ -19,7 +19,7 @@ def download_file(url, dir, file):
 
 
 def download_zip_file(url, dir):
-    logger.info('Downloaing zip from {url} and extracting to {dir}')
+    logger.info('Downloaing zip from {} and extracting to {}'.format(url, dir))
     try:
         with urllib.request.urlopen(url) as zipresp:
             with ZipFile(BytesIO(zipresp.read())) as zfile:
@@ -31,7 +31,7 @@ def download_zip_file(url, dir):
 
 def download_zip_file_mozilla_agent(url, dir):
     logger.info(
-        'Downloaing zip using mozilla agent from {url} and extracting to {dir}')
+        'Downloaing zip using mozilla agent from {} and extracting to {}'.format(url, dir))
     ssl._create_default_https_context = ssl._create_unverified_context
     page = urllib.request.Request(
         url, headers={'User-Agent': 'Mozilla/5.0'})

@@ -35,9 +35,15 @@ def store_bhav_copy(dir, file):
         rowdict = dict(row)
         rowdict["_id"] = rowdict["ISIN_CODE"] + \
             "_" + format_date_string(rowdict["TRADING_DATE"], '%d-%b-%y')
-        logger.debug('Inserting BSE bhav copy data {rowdict} to DB')
-        logger.debug(rowdict)
-        insert_record("bse_bhav_raw", rowdict)
+        rowdict["DER_AVG_TRADE_WORTH"] = float(rowdict["NET_TURNOV"]) / \
+            int(rowdict["NO_TRADES"])
+        rowdict["DER_AVG_QTY_PER_TRADE"] = int(rowdict["NO_OF_SHRS"]) / \
+            int(rowdict["NO_TRADES"])
+        rowdict["DER_AVG_PRICE"] = float(rowdict["NET_TURNOV"]) / \
+            int(rowdict["NO_OF_SHRS"])
+        logger.debug('Inserting BSE bhav copy data {} to DB'.format(rowdict))
+        print(rowdict)
+        #insert_record("bse_bhav_raw", rowdict)
     logger.info('BSE bhav copy data is pushed to DB')
 
 
@@ -49,6 +55,9 @@ def store_delivery_data(dir, file_name):
         rowdict = dict(row)
         rowdict["_id"] = rowdict["SCRIP CODE"] + "_" + \
             format_date_string(rowdict["DATE"], '%d%m%Y')
-        logger.debug('Inserting BSE delivery data {rowdict} to DB')
-        insert_record("bse_delivery_raw", rowdict)
+        rowdict["DER_DELIVERY_TURNOVER"] = float(rowdict["DELIVERY VAL"]) / \
+            10000000
+        logger.debug('Inserting BSE delivery data {} to DB'.format(rowdict))
+        print(rowdict)
+        #insert_record("bse_delivery_raw", rowdict)
     logger.info('BSE Delivery data is pushed to DB')

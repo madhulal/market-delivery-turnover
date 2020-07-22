@@ -3,7 +3,6 @@ from mongo_utils import insert_record
 from download_utils import download_zip_file, download_file
 from date_utils import format_date, format_date_string
 import logging
-import subprocess
 
 
 monthtext = {'01': 'JAN', '02': 'FEB', '03': 'MAR', '04': 'APR', '05': 'MAY', '06': 'JUN',
@@ -39,8 +38,15 @@ def store_bhav_copy(dir, file_name):
         rowdict["_id"] = rowdict["ISIN"] + "_" + \
             format_date_string(rowdict["TIMESTAMP"], '%d-%b-%Y')
         del rowdict['']
-        logger.debug('Inserting NSE bhav copy data {rowdict} to DB')
-        insert_record("nse_bhav_raw", rowdict)
+        rowdict["DER_AVG_TRADE_WORTH"] = float(rowdict["TOTTRDVAL"]) / \
+            int(rowdict["TOTALTRADES"])
+        rowdict["DER_AVG_QTY_PER_TRADE"] = int(rowdict["TOTTRDQTY"]) / \
+            int(rowdict["TOTALTRADES"])
+        rowdict["DER_AVG_PRICE"] = float(rowdict["TOTTRDVAL"]) / \
+            int(rowdict["TOTTRDQTY"])
+        logger.debug('Inserting NSE bhav copy data {} to DB'.format(rowdict))
+        print(rowdict)
+        #insert_record("nse_bhav_raw", rowdict)
     logger.info('NSE bhav copy data is pushed to DB')
 
 
@@ -78,6 +84,12 @@ def store_delivery_data(dir, file_name, date):
             format_date(date)
         del rowdict['Record Type']
         del rowdict['Sr No']
+        # NEED TO FETCH THE CORRESPONDING ENTRY FROM NSE BHAV COPY
+        # fetch the row with _id =
+        # fetch TODO test
+        rowdict["DER_DELIVERY_TURNOVER"] = bhav_rowdict["TOTTRDVAL"] / \
+            bhav_rowdict["TOTALTRADES"] * \
+            rowdict["Deliverable Quantity"]/10000000
         logger.debug('Inserting NSE delivery data {} to DB'.format(rowdict))
         insert_record("nse_delivery_raw", rowdict)
     logger.info('NSE delivery data is pushed to DB')
