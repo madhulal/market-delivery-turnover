@@ -5,8 +5,10 @@ from settings import MONGO_URI
 client = MongoClient(MONGO_URI)
 db = client.marketdb
 
+
 def get_db():
     return db
+
 
 def db_status():
     print(db.collection_names())
@@ -25,10 +27,6 @@ def insert_record(collection, record):
 
 def insert_records(collection, records):
     db[collection].insert_many(records)
-
-
-def update_record(collection, record):
-    db[collection].update_one(record, upsert=True)
 
 
 def get_record_by_id(collection, idvalue):
@@ -54,15 +52,24 @@ def list_collections():
 def drop_collection(collection):
     db[collection].drop()
 
+
 db_status()
 list_collections()
-#count_records("nse_bhav_raw")
-#count_records("bse_bhav_raw")
+""" count_records("nse_bhav_raw")
+count_records("nse_delivery_raw")
 count_records("nse_combined")
-#print_records("nse_combined")
+# print_records("nse_combined")
 drop_collection("nse_bhav_raw")
 drop_collection("nse_delivery_raw")
-#drop_collection("bse_bhav_raw")
 drop_collection("nse_combined")
 
-# print_records("car")
+count_records("bse_bhav_raw")
+count_records("bse_delivery_raw")
+count_records("bse_combined")
+
+drop_collection("bse_bhav_raw")
+drop_collection("bse_delivery_raw")
+drop_collection("bse_combined") 
+
+drop_collection("ichart_technical")
+drop_collection("fundamental")"""

@@ -31,18 +31,18 @@ def get_nse_bhav_copy(date, dir):
 
 
 def store_bhav_copy(dir, file_name):
-    print(store_bhav_copy)
     logger.debug('Storing the NSE raw bhav copy from {file_name}')
     file = open(dir+file_name, 'r')
     csv_file = csv.DictReader(file)
     for row in csv_file:
         rowdict = dict(row)
         id = rowdict["ISIN"] + "_" + \
+            rowdict["SERIES"] + "_" + \
             format_date_string(rowdict["TIMESTAMP"], '%d-%b-%Y')
         rowdict["_id"] = id
         del rowdict['']
         logger.debug('Inserting NSE bhav copy data {} to DB'.format(rowdict))
-        #insert_record("nse_bhav_raw", rowdict)
+        insert_record("nse_bhav_raw", rowdict)
 
         avg_trade_worth = float(rowdict["TOTTRDVAL"]) / \
             int(rowdict["TOTALTRADES"])
@@ -51,19 +51,19 @@ def store_bhav_copy(dir, file_name):
         avg_price = float(rowdict["TOTTRDVAL"]) / \
             int(rowdict["TOTTRDQTY"])
 
-        nse_combined = {}
-        nse_combined["_id"] = id
-        nse_combined["isin"] = rowdict["ISIN"]
-        nse_combined["symbol"] = rowdict["SYMBOL"]
-        nse_combined["series"] = rowdict["SERIES"]
-        nse_combined["date"] = format_date_string(
+        nse_combined_dict = {}
+        nse_combined_dict["_id"] = id
+        nse_combined_dict["isin"] = rowdict["ISIN"]
+        nse_combined_dict["symbol"] = rowdict["SYMBOL"]
+        nse_combined_dict["series"] = rowdict["SERIES"]
+        nse_combined_dict["date"] = format_date_string(
             rowdict["TIMESTAMP"], '%d-%b-%Y')
-        nse_combined["avg_trade_worth"] = avg_trade_worth
-        nse_combined["avg_quantity_per_trade"] = avg_qty_per_trade
-        nse_combined["avg_price"] = avg_price
+        nse_combined_dict["avg_trade_worth"] = avg_trade_worth
+        nse_combined_dict["avg_quantity_per_trade"] = avg_qty_per_trade
+        nse_combined_dict["avg_price"] = avg_price
         logger.debug(
-            'Inserting NSE bhav combined data {} to DB'.format(nse_combined))
-        insert_record("nse_combined", nse_combined)
+            'Inserting NSE bhav combined data {} to DB'.format(nse_combined_dict))
+        insert_record("nse_combined", nse_combined_dict)
 
     logger.info('NSE bhav copy data is pushed to DB')
 
@@ -80,10 +80,9 @@ def update_delivery_file_header(content):
 
 
 def store_delivery_data(dir, file_name, date):
-    print(store_delivery_data)
     logger.debug("Storing the NSE raw delivery data in DB from {file_name}")
 
-    # The file needs to be excluded first three lines alsomissed the series
+    # The file needs to be excluded first three lines; also missed the series column
     with open(dir + file_name) as f:
         lines_after_3 = f.readlines()[3:]
         f.close
@@ -108,19 +107,18 @@ def store_delivery_data(dir, file_name, date):
         del rowdict['Sr No']
         logger.debug(
             'Inserting raw NSE delivery data {} to DB'.format(rowdict))
-        #insert_record("nse_delivery_raw", rowdict)
+        insert_record("nse_delivery_raw", rowdict)
 
         nse_combined_record = get_record(
             "nse_combined", {'symbol': symbol, 'series': series, 'date': formatted_date})
         avg_trade_worth = nse_combined_record['avg_trade_worth']
         delivery_turnover_in_cr = avg_trade_worth * \
             int(rowdict["Deliverable Quantity"]) / 10000000
-        new_val= {"delivery_turnover": delivery_turnover_in_cr}
+        new_val = {"delivery_turnover": delivery_turnover_in_cr}
         logger.debug(
             'Updating NSE combined data {} to DB'.format(nse_combined_record))
         get_db().nse_combined.update_one(
-            {"_id" : nse_combined_record["_id"]},
+            {"_id": nse_combined_record["_id"]},
             {"$set": new_val}, upsert=False)
-        #update_record("nse_combined", nse_combined)
 
     logger.info('NSE delivery data is pushed to DB')

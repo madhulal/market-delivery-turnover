@@ -17,7 +17,7 @@ def fetch_technical(date, dir):
 
 
 def store_data(dir, file_name):
-    logger.debug("Storing the technical data in DB from {file_name}")
+    logger.debug("Storing the technical data in DB from {}".format(file_name))
     file = open(dir+file_name, 'r')
     csv_file = csv.DictReader(file)
     for row in csv_file:

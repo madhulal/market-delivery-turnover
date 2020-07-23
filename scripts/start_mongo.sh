@@ -1,1 +1,2 @@
-mongod --dbpath /workspace/data/market
+cd ..
+docker-compose up
