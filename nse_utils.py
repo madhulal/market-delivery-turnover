@@ -1,8 +1,9 @@
 import csv
-from mongo_utils import insert_record, get_record, update_record
+from mongo_utils import insert_record, get_record, get_db
 from download_utils import download_zip_file, download_file
 from date_utils import format_date, format_date_string
 import logging
+from bson.objectid import ObjectId
 
 
 monthtext = {'01': 'JAN', '02': 'FEB', '03': 'MAR', '04': 'APR', '05': 'MAY', '06': 'JUN',
@@ -30,6 +31,7 @@ def get_nse_bhav_copy(date, dir):
 
 
 def store_bhav_copy(dir, file_name):
+    print(store_bhav_copy)
     logger.debug('Storing the NSE raw bhav copy from {file_name}')
     file = open(dir+file_name, 'r')
     csv_file = csv.DictReader(file)
@@ -61,7 +63,6 @@ def store_bhav_copy(dir, file_name):
         nse_combined["avg_price"] = avg_price
         logger.debug(
             'Inserting NSE bhav combined data {} to DB'.format(nse_combined))
-        print(nse_combined)
         insert_record("nse_combined", nse_combined)
 
     logger.info('NSE bhav copy data is pushed to DB')
@@ -79,6 +80,7 @@ def update_delivery_file_header(content):
 
 
 def store_delivery_data(dir, file_name, date):
+    print(store_delivery_data)
     logger.debug("Storing the NSE raw delivery data in DB from {file_name}")
 
     # The file needs to be excluded first three lines alsomissed the series
@@ -106,16 +108,19 @@ def store_delivery_data(dir, file_name, date):
         del rowdict['Sr No']
         logger.debug(
             'Inserting raw NSE delivery data {} to DB'.format(rowdict))
-        insert_record("nse_delivery_raw", rowdict)
+        #insert_record("nse_delivery_raw", rowdict)
 
-        nse_combined = get_record(
-            "nse_combined", {'sybol': symbol, 'series': series, 'date': formatted_date})
-        avg_trade_worth = nse_combined['avg_trade_worth']
+        nse_combined_record = get_record(
+            "nse_combined", {'symbol': symbol, 'series': series, 'date': formatted_date})
+        avg_trade_worth = nse_combined_record['avg_trade_worth']
         delivery_turnover_in_cr = avg_trade_worth * \
             int(rowdict["Deliverable Quantity"]) / 10000000
-        nse_combined["delivery_turnover"] = delivery_turnover_in_cr
+        new_val= {"delivery_turnover": delivery_turnover_in_cr}
         logger.debug(
-            'Updating NSE combined data {} to DB'.format(nse_combined))
-        update_record("nse_combined", nse_combined)
+            'Updating NSE combined data {} to DB'.format(nse_combined_record))
+        get_db().nse_combined.update_one(
+            {"_id" : nse_combined_record["_id"]},
+            {"$set": new_val}, upsert=False)
+        #update_record("nse_combined", nse_combined)
 
     logger.info('NSE delivery data is pushed to DB')

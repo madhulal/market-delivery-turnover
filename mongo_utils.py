@@ -5,6 +5,8 @@ from settings import MONGO_URI
 client = MongoClient(MONGO_URI)
 db = client.marketdb
 
+def get_db():
+    return db
 
 def db_status():
     print(db.collection_names())
@@ -35,7 +37,7 @@ def get_record_by_id(collection, idvalue):
 
 
 def get_record(collection, query):
-    record = db[collection].find(query)
+    record = db[collection].find_one(query)
     return record
 
 
@@ -52,24 +54,15 @@ def list_collections():
 def drop_collection(collection):
     db[collection].drop()
 
-
-cars = [{'_id': 123, 'name': 'Audi', 'price': 52642},
-        {'name': 'Mercedes', 'price': 57127},
-        {'name': 'Skoda', 'price': 9000},
-        {'name': 'Volvo', 'price': 29000},
-        {'name': 'Bentley', 'price': 350000},
-        {'name': 'Citroen', 'price': 21000},
-        {'name': 'Hummer', 'price': 41400},
-        {'name': 'Volkswagen', 'price': 21600}]
-
-# drop_collection("car")
-# insert_record("car", cars)
-# list_collections()
-# print_records("car")
-
-# db_status()
-# count_records("nse_bhav_raw")
-# count_records("bse_bhav_raw")
-# drop_collection("nse_bhav_raw")
+db_status()
+list_collections()
+#count_records("nse_bhav_raw")
+#count_records("bse_bhav_raw")
+count_records("nse_combined")
+#print_records("nse_combined")
+drop_collection("nse_bhav_raw")
+drop_collection("nse_delivery_raw")
+#drop_collection("bse_bhav_raw")
+drop_collection("nse_combined")
 
 # print_records("car")
