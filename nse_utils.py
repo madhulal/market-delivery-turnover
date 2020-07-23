@@ -1,5 +1,5 @@
 import csv
-from mongo_utils import insert_record
+from mongo_utils import insert_record, get_record, update_record
 from download_utils import download_zip_file, download_file
 from date_utils import format_date, format_date_string
 import logging
@@ -35,18 +35,35 @@ def store_bhav_copy(dir, file_name):
     csv_file = csv.DictReader(file)
     for row in csv_file:
         rowdict = dict(row)
-        rowdict["_id"] = rowdict["ISIN"] + "_" + \
+        id = rowdict["ISIN"] + "_" + \
             format_date_string(rowdict["TIMESTAMP"], '%d-%b-%Y')
+        rowdict["_id"] = id
         del rowdict['']
-        rowdict["DER_AVG_TRADE_WORTH"] = float(rowdict["TOTTRDVAL"]) / \
-            int(rowdict["TOTALTRADES"])
-        rowdict["DER_AVG_QTY_PER_TRADE"] = int(rowdict["TOTTRDQTY"]) / \
-            int(rowdict["TOTALTRADES"])
-        rowdict["DER_AVG_PRICE"] = float(rowdict["TOTTRDVAL"]) / \
-            int(rowdict["TOTTRDQTY"])
         logger.debug('Inserting NSE bhav copy data {} to DB'.format(rowdict))
-        print(rowdict)
         #insert_record("nse_bhav_raw", rowdict)
+
+        avg_trade_worth = float(rowdict["TOTTRDVAL"]) / \
+            int(rowdict["TOTALTRADES"])
+        avg_qty_per_trade = int(rowdict["TOTTRDQTY"]) / \
+            int(rowdict["TOTALTRADES"])
+        avg_price = float(rowdict["TOTTRDVAL"]) / \
+            int(rowdict["TOTTRDQTY"])
+
+        nse_combined = {}
+        nse_combined["_id"] = id
+        nse_combined["isin"] = rowdict["ISIN"]
+        nse_combined["symbol"] = rowdict["SYMBOL"]
+        nse_combined["series"] = rowdict["SERIES"]
+        nse_combined["date"] = format_date_string(
+            rowdict["TIMESTAMP"], '%d-%b-%Y')
+        nse_combined["avg_trade_worth"] = avg_trade_worth
+        nse_combined["avg_quantity_per_trade"] = avg_qty_per_trade
+        nse_combined["avg_price"] = avg_price
+        logger.debug(
+            'Inserting NSE bhav combined data {} to DB'.format(nse_combined))
+        print(nse_combined)
+        insert_record("nse_combined", nse_combined)
+
     logger.info('NSE bhav copy data is pushed to DB')
 
 
@@ -79,17 +96,26 @@ def store_delivery_data(dir, file_name, date):
     csv_file = csv.DictReader(file)
     for row in csv_file:
         rowdict = dict(row)
-        rowdict["_id"] = rowdict["Name of Security"] + "_" + \
-            rowdict["Series"] + "_" + \
-            format_date(date)
+        symbol = rowdict["Name of Security"]
+        series = rowdict["Series"]
+        formatted_date = format_date(date)
+        rowdict["_id"] = symbol + "_" + \
+            series + "_" + \
+            formatted_date
         del rowdict['Record Type']
         del rowdict['Sr No']
-        # NEED TO FETCH THE CORRESPONDING ENTRY FROM NSE BHAV COPY
-        # fetch the row with _id =
-        # fetch TODO test
-        rowdict["DER_DELIVERY_TURNOVER"] = bhav_rowdict["TOTTRDVAL"] / \
-            bhav_rowdict["TOTALTRADES"] * \
-            rowdict["Deliverable Quantity"]/10000000
-        logger.debug('Inserting NSE delivery data {} to DB'.format(rowdict))
+        logger.debug(
+            'Inserting raw NSE delivery data {} to DB'.format(rowdict))
         insert_record("nse_delivery_raw", rowdict)
+
+        nse_combined = get_record(
+            "nse_combined", {'sybol': symbol, 'series': series, 'date': formatted_date})
+        avg_trade_worth = nse_combined['avg_trade_worth']
+        delivery_turnover_in_cr = avg_trade_worth * \
+            int(rowdict["Deliverable Quantity"]) / 10000000
+        nse_combined["delivery_turnover"] = delivery_turnover_in_cr
+        logger.debug(
+            'Updating NSE combined data {} to DB'.format(nse_combined))
+        update_record("nse_combined", nse_combined)
+
     logger.info('NSE delivery data is pushed to DB')

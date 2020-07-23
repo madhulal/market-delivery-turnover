@@ -29,8 +29,13 @@ def update_record(collection, record):
     db[collection].update_one(record, upsert=True)
 
 
-def get_record(collection, idvalue):
+def get_record_by_id(collection, idvalue):
     record = db[collection].find_one({'_id': idvalue})
+    return record
+
+
+def get_record(collection, query):
+    record = db[collection].find(query)
     return record
 
 

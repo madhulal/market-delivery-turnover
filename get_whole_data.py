@@ -28,10 +28,10 @@ for i in range(1, diff.days+1):
     if(is_trading_holiday(requestdate)):
         logger.info('{requestdate} is a trading holiday')
     else:
-        #get_nse_bhav_copy(requestdate, DATA_FOLDER)
+        get_nse_bhav_copy(requestdate, DATA_FOLDER)
         #get_bse_bhav_copy(requestdate, DATA_FOLDER)
-        #get_nse_delivery_data(requestdate, DATA_FOLDER)
-        get_bse_delivery_data(requestdate, DATA_FOLDER)
+        get_nse_delivery_data(requestdate, DATA_FOLDER)
+        #get_bse_delivery_data(requestdate, DATA_FOLDER)
         wr = requestdate.date()
 
 #fetch_technical(datetime.today(), DATA_FOLDER)
