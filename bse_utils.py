@@ -1,11 +1,28 @@
 import csv
 from download_utils import download_zip_file_mozilla_agent
 from date_utils import format_date, format_date_string
-from mongo_utils import insert_record, get_record, get_db
+from mongo_utils import insert_record, get_record, get_db, drop_collection
 import logging
+from datetime import date
+from config import is_nse_fetch_enabled
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+
+def drop_bse_collections():
+    logger.warning('Clearing BSE collections')
+    drop_collection("bse_bhav_raw")
+    drop_collection("bse_delivery_raw")
+    drop_collection("bse_combined")
+
+
+def fetch_bse_data(date, dir):
+    if(is_nse_fetch_enabled()):
+        get_bse_bhav_copy(date, dir)
+        get_bse_delivery_data(date, dir)
+    else:
+        logger.warning('BSE fetching is not enabled')
 
 
 def get_bse_delivery_data(date, dir):
@@ -25,6 +42,7 @@ def get_bse_bhav_copy(date, dir):
     if(download_zip_file_mozilla_agent(bhavurl, dir)):
         extracted_file_name = filename.replace("zip", "CSV")
         store_bhav_copy(dir, extracted_file_name)
+        return True
 
 
 def store_bhav_copy(dir, file):
@@ -54,9 +72,12 @@ def store_bhav_copy(dir, file):
         bse_combined_dict["series"] = rowdict["SC_TYPE"]
         bse_combined_dict["date"] = format_date_string(
             rowdict["TRADING_DATE"], '%d-%b-%y')
+        bse_combined_dict["volume"] = rowdict["NO_OF_SHRS"]
+        bse_combined_dict["turnover"] = rowdict["NET_TURNOV"]
         bse_combined_dict["avg_trade_worth"] = avg_trade_worth
         bse_combined_dict["avg_quantity_per_trade"] = avg_qty_per_trade
         bse_combined_dict["avg_price"] = avg_price
+        bse_combined_dict["delivery_turnover"] = 0.0
         logger.debug(
             'Inserting BSE bhav combined data {} to DB'.format(bse_combined_dict))
         insert_record("bse_combined", bse_combined_dict)
@@ -84,10 +105,8 @@ def store_delivery_data(dir, file_name):
 
         bse_combined_record = get_record(
             "bse_combined", {'symbol': symbol, 'date': formatted_date})
-        avg_trade_worth = bse_combined_record['avg_trade_worth']
-        delivery_turnover_in_cr = float(rowdict["DELIVERY VAL"]) / \
-            10000000
-        new_val = {"delivery_turnover": delivery_turnover_in_cr}
+        delivery_turnover = float(rowdict["DELIVERY VAL"])
+        new_val = {"delivery_turnover": delivery_turnover}
         logger.debug(
             'Updating BSE combined data {} to DB'.format(bse_combined_record))
         get_db().bse_combined.update_one(
@@ -95,3 +114,12 @@ def store_delivery_data(dir, file_name):
             {"$set": new_val}, upsert=False)
 
     logger.info('BSE Delivery data is pushed to DB')
+
+
+def test():
+    request_date = date(2020, 7, 9)
+    # drop_bse_collections()
+    fetch_bse_data(request_date, '/tmp/market/bse/')
+
+
+# test()

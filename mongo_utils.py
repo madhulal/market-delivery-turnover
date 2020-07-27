@@ -39,6 +39,16 @@ def get_record(collection, query):
     return record
 
 
+def get_records(collection, query):
+    records = db[collection].find(query)
+    return records
+
+
+def get_records(collection, query, filter):
+    records = db[collection].find(query, filter)
+    return records
+
+
 def print_records(collection):
     records = db[collection].find()
     for record in records:
@@ -50,26 +60,28 @@ def list_collections():
 
 
 def drop_collection(collection):
+    print('Dropping colelction: {} from DB'.format(collection))
     db[collection].drop()
 
 
-db_status()
-list_collections()
-""" count_records("nse_bhav_raw")
-count_records("nse_delivery_raw")
-count_records("nse_combined")
+# db_status()
+# list_collections()
+
+""" # count_records("nse_bhav_raw")
+# count_records("nse_delivery_raw")
+# count_records("nse_combined")
 # print_records("nse_combined")
 drop_collection("nse_bhav_raw")
 drop_collection("nse_delivery_raw")
 drop_collection("nse_combined")
 
-count_records("bse_bhav_raw")
-count_records("bse_delivery_raw")
-count_records("bse_combined")
+# count_records("bse_bhav_raw")
+# count_records("bse_delivery_raw")
+# count_records("bse_combined")
 
 drop_collection("bse_bhav_raw")
 drop_collection("bse_delivery_raw")
-drop_collection("bse_combined") 
+drop_collection("bse_combined")
 
-drop_collection("ichart_technical")
-drop_collection("fundamental")"""
+# drop_collection("ichart_technical")
+# drop_collection("fundamental") """

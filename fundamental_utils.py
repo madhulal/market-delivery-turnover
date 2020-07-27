@@ -1,12 +1,19 @@
-from mongo_utils import insert_record, get_db, get_record_by_id
+from mongo_utils import insert_record, get_db, get_record_by_id, drop_collection
 from date_utils import format_date, format_date_string
 import logging
 import pandas as pd
 import csv
 from json_utils import write_dict_to_file
+from datetime import date
+from config import is_fundamnetal_enabled
+from settings import DATA_FOLDER, FUNDAMENTALS_FILE_NAME
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+
+
+def drop_collections():
+    logger.warning('Clearing fundamental collections')
+    drop_collection("fundamental")
 
 
 def update_header(file_path):
@@ -21,13 +28,17 @@ def update_header(file_path):
     new_file.close
 
 
-def fetch_fundamentals(dir, file_name, date):
-    # Convert xlsx to csv
-    read_file = pd.read_excel(dir + file_name)
-    write_file = dir + file_name + '_' + format_date(date) + '.csv'
-    read_file.to_csv(write_file, index=None, header=True)
-    update_header(write_file)
-    store_data(dir, write_file)
+def fetch_fundamentals(date):
+    # drop_collections()
+    if(is_fundamnetal_enabled()):
+        # Convert xlsx to csv
+        read_file = pd.read_excel(DATA_FOLDER + FUNDAMENTALS_FILE_NAME)
+        write_file = dir + file_name + '_' + format_date(date) + '.csv'
+        read_file.to_csv(write_file, index=None, header=True)
+        update_header(write_file)
+        store_data(dir, write_file)
+    else:
+        logger.warning('Fundamental not enabled')
 
 
 def store_data(dir, file):
@@ -53,3 +64,12 @@ def store_data(dir, file):
 
         #write_dict_to_file(rowdict, dir + 'test.json')
     logger.info('Fundamental data is pushed to DB')
+
+
+def test():
+    request_date = date(2020, 7, 9)
+    # drop_collections()
+    fetch_fundamentals(request_date)
+
+
+# test()

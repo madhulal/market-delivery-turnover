@@ -1,16 +1,31 @@
 import csv
-from mongo_utils import insert_record, get_record, get_db
+from mongo_utils import insert_record, get_record, get_db, drop_collection
 from download_utils import download_zip_file, download_file
 from date_utils import format_date, format_date_string
 import logging
-from bson.objectid import ObjectId
-
+from datetime import date
+from config import is_nse_fetch_enabled
 
 monthtext = {'01': 'JAN', '02': 'FEB', '03': 'MAR', '04': 'APR', '05': 'MAY', '06': 'JUN',
              '07': 'JUL', '08': 'AUG', '09': 'SEP', '10': 'OCT', '11': 'NOV', '12': 'DEC'}
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+
+def drop_nse_collections():
+    logger.warning('Clearing NSE collections')
+    drop_collection("nse_bhav_raw")
+    drop_collection("nse_delivery_raw")
+    drop_collection("nse_combined")
+
+
+def fetch_nse_data(date, dir):
+    if(is_nse_fetch_enabled()):
+        get_nse_bhav_copy(date, dir)
+        get_nse_delivery_data(date, dir)
+    else:
+        logger.warning('NSE fetching is not enabled')
 
 
 def get_nse_delivery_data(date, dir):
@@ -26,6 +41,7 @@ def get_nse_bhav_copy(date, dir):
     file_name = 'cm'+day+monthtext[month]+year+'bhav.csv'
     nsebhavzipurl = 'https://www1.nseindia.com/content/historical/EQUITIES/' + \
         year+'/' + monthtext[month]+'/' + file_name+'.zip'
+
     if(download_zip_file(nsebhavzipurl, dir)):
         store_bhav_copy(dir, file_name)
 
@@ -58,9 +74,13 @@ def store_bhav_copy(dir, file_name):
         nse_combined_dict["series"] = rowdict["SERIES"]
         nse_combined_dict["date"] = format_date_string(
             rowdict["TIMESTAMP"], '%d-%b-%Y')
+        nse_combined_dict["close_price"] = rowdict["CLOSE"]
+        nse_combined_dict["volume"] = rowdict["TOTTRDQTY"]
+        nse_combined_dict["turnover"] = rowdict["TOTTRDVAL"]
         nse_combined_dict["avg_trade_worth"] = avg_trade_worth
         nse_combined_dict["avg_quantity_per_trade"] = avg_qty_per_trade
         nse_combined_dict["avg_price"] = avg_price
+        nse_combined_dict["delivery_turnover"] = 0.0
         logger.debug(
             'Inserting NSE bhav combined data {} to DB'.format(nse_combined_dict))
         insert_record("nse_combined", nse_combined_dict)
@@ -111,10 +131,10 @@ def store_delivery_data(dir, file_name, date):
 
         nse_combined_record = get_record(
             "nse_combined", {'symbol': symbol, 'series': series, 'date': formatted_date})
-        avg_trade_worth = nse_combined_record['avg_trade_worth']
-        delivery_turnover_in_cr = avg_trade_worth * \
-            int(rowdict["Deliverable Quantity"]) / 10000000
-        new_val = {"delivery_turnover": delivery_turnover_in_cr}
+        avg_price = nse_combined_record['avg_price']
+        delivery_turnover = avg_price * \
+            int(rowdict["Deliverable Quantity"])
+        new_val = {"delivery_turnover": delivery_turnover}
         logger.debug(
             'Updating NSE combined data {} to DB'.format(nse_combined_record))
         get_db().nse_combined.update_one(
@@ -122,3 +142,12 @@ def store_delivery_data(dir, file_name, date):
             {"$set": new_val}, upsert=False)
 
     logger.info('NSE delivery data is pushed to DB')
+
+
+def test():
+    request_date = date(2020, 7, 9)
+    # drop_nse_collections()
+    fetch_nse_data(request_date, '/tmp/market/nse/')
+
+
+test()

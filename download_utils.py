@@ -3,6 +3,7 @@ import urllib.request
 from zipfile import ZipFile
 import ssl
 import logging
+import traceback
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -26,7 +27,8 @@ def download_zip_file(url, dir):
                 zfile.extractall(dir)
         return True
     except Exception as e:
-        logger.warn('Failed to download {} with exception {}'.format(url, e))
+        logger.warn(
+            'Failed to download {} with exception {}'.format(url, e.read()))
 
 
 def download_zip_file_mozilla_agent(url, dir):
@@ -41,4 +43,6 @@ def download_zip_file_mozilla_agent(url, dir):
                 zfile.extractall(dir)
         return True
     except Exception as e:
-        logger.warn('Failed to download {} with exception {}'.format(url, e))
+        logger.warn(
+            'Failed to download {} with exception {}'.format(url, e.read()))
+        traceback.print_exc()

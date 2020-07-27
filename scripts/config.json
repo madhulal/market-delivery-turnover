@@ -1,0 +1,24 @@
+{
+    "_id": "technical",
+    "enabled": false
+},
+{
+    "_id": "fundamental",
+    "enabled": false
+},
+{
+    "_id": "nse",
+    "enabled": false,
+    "download_bhav_copy": true,
+    "download_delivery_data": true,
+    "store_bhav_copy": true,
+    "store_delivery_data": true
+},
+{
+    "_id": "bse",
+    "enabled": false,
+    "download_bhav_copy": true,
+    "download_delivery_data": true,
+    "store_bhav_copy": true,
+    "store_delivery_data": true
+}
